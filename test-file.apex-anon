@@ -1,0 +1,26 @@
+ Record accountFabric = new AccountFabricMethod();
+        Record contactFabric = new ContactFabricMethod();
+        Record rulesFabric = new ContactAssignmentRuleFabricMethod();
+
+        List<Account> accountList = new List<Account>();
+        List<Contact> contactList = new List<Contact>();
+        List<Contact_Rule_Account_Junction__c> junctionList = new List<Contact_Rule_Account_Junction__c>();
+        List<Contact_Assignment_Rule__c> ruleList = new List<Contact_Assignment_Rule__c>();
+
+        Record junctionFabric = new JunctionAccountRuleFabricMethod(accountList, ruleList);
+
+        for (Integer i = 0; i < 200; i++) {
+            accountList.add((Account)accountFabric.getRecord());
+            contactList.add((Contact)contactFabric.getRecord());
+            ruleList.add((Contact_Assignment_Rule__c)rulesFabric.getRecord());
+        }
+
+        insert accountList;
+        insert contactList;
+        insert ruleList;
+
+        for (Integer i = 0; i < 200; i++) {
+            junctionList.add((Contact_Rule_Account_Junction__c)junctionFabric.getRecord());
+        }
+
+        insert junctionList;

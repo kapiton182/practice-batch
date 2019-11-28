@@ -1,0 +1,53 @@
+        List<Contact_Rule_Account_Junction__c> ruleList = [
+            SELECT Contact_Assignment_Rule__r.Operator__c, Contact_Assignment_Rule__r.Field_Value__c, 
+                Contact_Assignment_Rule__r.Field_API__c, Account__r.Id 
+            FROM Contact_Rule_Account_Junction__c
+        ];
+    Map<String, Schema.SObjectField> contactFieldSetMap = Schema.getGlobalDescribe().get('Contact').getDescribe().fields.getMap();
+List<Contact> contactList = Database.query('SELECT accountId, Amount__c FROM Contact WHERE ' + getAllConditions(ruleList));
+
+for (Contact cont : contactList) {
+  System.debug(cont);
+}
+
+    private String getAllConditions(List<Contact_Rule_Account_Junction__c> ruleList) {
+        String conditionString = '';
+
+        for (Contact_Rule_Account_Junction__c ruleItem : ruleList) {
+            conditionString += getCondition(ruleItem) + ' OR';
+        }
+
+        return conditionString.substring(0, conditionString.length() - 2);
+    }
+
+    private String getCondition(Contact_Rule_Account_Junction__c ruleItem) {
+        String conditionString = '';
+
+        conditionString += ruleItem.Contact_Assignment_Rule__r.Field_API__c
+        + ruleItem.Contact_Assignment_Rule__r.Operator__c
+        + 
+        (isQuotesNeed(ruleItem.Contact_Assignment_Rule__r.Field_API__c)
+        ? '\''+ ruleItem.Contact_Assignment_Rule__r.Field_Value__c + '\''
+        : ruleItem.Contact_Assignment_Rule__r.Field_Value__c);
+
+        return conditionString;
+    }
+
+        private Boolean isQuotesNeed(String fieldName) {
+        Schema.DisplayType type = contactFieldSetMap.get(fieldName).getDescribe().getType();
+
+        switch on type {
+            when Boolean, Integer, Long, Currency {
+                return false;
+            }
+            when else {
+                return true;
+            }
+        }
+    }
+
+
+    Account ac = [SELECT Id, Contacts_Limit__c, (SELECT Id, accountId FROM Contacts) FROM Account WHERE Id='0017F00000PJAtMQAX'];
+    for(Contact cont : ac.Contacts){
+      System.debug(cont);
+    }
